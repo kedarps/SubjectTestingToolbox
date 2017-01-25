@@ -13,7 +13,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
     methods
         %............................................................
         % Constructor
-        % modified by cst
         function self = sttSubjectTestingInterface(varargin)
             
             oldFig = findobj('type','figure','tag','sttSubjectTestingInterface');
