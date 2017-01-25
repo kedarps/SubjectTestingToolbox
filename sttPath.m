@@ -21,6 +21,7 @@ addpath(P);
 % a . or a ]
 
 % Here is another comment
+%
 
 removePath = [];
 [string,remString] = strtok(P,pathsep);
