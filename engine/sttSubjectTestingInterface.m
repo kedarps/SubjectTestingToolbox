@@ -13,6 +13,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
     methods
         %............................................................
         % Constructor
+        % modified by ksp6
         function self = sttSubjectTestingInterface(varargin)
             
             oldFig = findobj('type','figure','tag','sttSubjectTestingInterface');
