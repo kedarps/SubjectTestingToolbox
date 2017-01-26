@@ -157,6 +157,9 @@ classdef sttTaskList < matlab.mixin.SetGet
             
             % Create temporary copy that can be reverted to if the user
             % decides to cancel
+            if ~isempty(self.parentTestingInterface)
+                self.parentTestingInterface = [];
+            end
             objAsByteArray = getByteStreamFromArray(self);
             self.listCopy = getArrayFromByteStream(objAsByteArray);
             set(self.handleStruct.cancelButton, ...
@@ -562,6 +565,7 @@ classdef sttTaskList < matlab.mixin.SetGet
 
         %............................................................
         % Revert list back to old copy and exit.
+        %   Used in function editTaskList
         function revertListAndExit(self)
             % Revert list
             self.taskList = self.listCopy.taskList;
