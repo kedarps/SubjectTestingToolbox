@@ -71,6 +71,30 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 'BackgroundColor', [0.8 0.95 0.95], ...
                 'visible','on',...
                 'BorderType','none');
+            
+            % create status panel within the task panel
+            self.handleStruct.statusPanel =  uipanel(self.handleStruct.figure,...
+                'Units','normalized',...
+                'Position',[0.191 0.222 0.6 0.628],...
+                'BackgroundColor', [0.94 0.94 0.94], ...
+                'visible','on',...
+                'Title','Status',...
+                'BorderType','etchedin');
+            
+            % create status buttons, save just the important ones in
+            % handleStruct, need not save all of them
+            self.handleStruct.status.subject = uicontrol(self.handleStruct.statusPanel,'Style','text','Units','normalized',...
+                'Position',[0.250 0.9 0.417 0.075],...
+                'BackgroundColor',[0.94 0.94 0.94],...
+                'visible','on','String','Subject: <none>','FontSize',15);
+            
+            uicontrol(self.handleStruct.statusPanel,'Style','text','Units','normalized',...
+                'Position',[0.333 0.704 0.271 0.074],...
+                'BackgroundColor',[0.94 0.94 0.94],...
+                'visible','on','String','Task List:','FontSize',15);
+            
+            self.handleStruct.status.tasktable = uitable(self.handleStruct.statusPanel,'Units','normalized',...
+                'Position',[0.015 0.278 0.973 0.361],'ColumnName',{'Task','Status','Completion Date & Time'},'RowName',{'1','2','3','4'},'ColumnWidth',{300,300,300});
         end
 
         %............................................................
@@ -142,7 +166,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 
                 % Create new subject
                 self.subject = sttNormalHearingSubject(self.preferences.saveDirectory);
-                
+                self.updateStatusPanel();
                 % Check to see if a subject was created:
                 if isempty(self.subject.returnSubjectID())
                     % If not, delete initialization.
@@ -209,7 +233,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                     end
                     
                     self.subject = subject;
-
+                    self.updateStatusPanel()
                     % If a subject has been loaded, and there is already a
                     % task list, and the subject does not match the task
                     % list (most likely), clear the task list
@@ -252,6 +276,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                         'Task List Cleared', 'modal');
                     uiwait(warnH)
                 end
+                self.updateStatusPanel();
             catch ME
                 self.subject.subjectError(ME);
                 if ~isempty(self.subject)
@@ -291,6 +316,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
         function clearSubject(self)
             delete(self.subject);
             self.subject = [];
+            self.updateStatusPanel();
         end
 
         %............................................................
@@ -334,6 +360,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                        self.handleStruct.taskPanel, ...
                        self.preferences.saveDirectory);
                end
+               self.updateStatusPanel();
            catch ME
                self.clearTaskList();
                warnH = warndlg(...
@@ -360,6 +387,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                     % If loaded, set subject from task list
                     self.taskList = taskList;
                     self.subject = self.taskList.returnSubject();
+                    self.updateStatusPanel();
                 end
             catch ME
                 warnH = warndlg(...
@@ -400,6 +428,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                         'Need subject information.', 'modal');
                     uiwait(errH);
                 else
+                    self.disableStatusPanel();
                     self.taskList.editTaskList(self.handleStruct.taskPanel);
                 end
             catch ME
@@ -423,6 +452,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 else
                     self.taskList.resetTaskList(self.handleStruct.taskPanel);
                 end
+                self.updateStatusPanel();
             catch ME
                warnH = warndlg(...
                    {ME.identifier; ME.message; 'Error occurred during reset.'}, ...
@@ -437,6 +467,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
         function clearTaskList(self)
             delete(self.taskList);
             self.taskList = [];
+            self.updateStatusPanel();
         end
         
         %............................................................
@@ -458,6 +489,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
             try
                 % Disable main UI controls
                 self.disableMainUi();
+                
                 
                 % Run task list
                 if isempty(self.taskList)
@@ -520,6 +552,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
 %             % Do not let 'x' box close the figure
 %             set(self.handleStruct.figure,...
 %                 'CloseRequestFcn', @(h,e)self.doNotAllowClose());
+            self.disableStatusPanel();
         end
 
         %............................................................
@@ -535,6 +568,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
             % Re-enable the 'x' box
             set(self.handleStruct.figure,...
                 'CloseRequestFcn', 'closereq');
+            self.enableStatusPanel();
         end
 
         %............................................................
@@ -562,6 +596,40 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 {'You cannot close the figure during task operation.', ...
                 'Please exit tasks via quit buttons.'}, 'Quit Properly', 'modal');
             uiwait(warnH);
+        end
+        
+        %............................................................
+        % Update UI status based on subject and taskList info.
+        function updateStatusPanel(self)
+            if ~isempty(self.subject)
+                subText = char(self.subject.ID);
+            else
+                subText = '<none>';
+            end
+            
+            set(self.handleStruct.status.subject,'String',sprintf('Subject: %s',subText));
+            
+            if ~isempty(self.taskList)
+                nTasks = length(self.taskList.taskList);
+                taskTableData = cell(nTasks,3);
+                
+                for i = 1:nTasks
+                    taskTableData{i,1} = self.taskList.taskList{i}.taskTitle;
+                    taskTableData{i,2} = self.taskList.taskList{i}.status;
+                    taskTableData{i,3} = char(self.taskList.taskList{i}.completionDateAndTime);
+                end
+                set(self.handleStruct.status.tasktable,'Data',taskTableData);
+            else
+                set(self.handleStruct.status.tasktable,'Data',{});
+            end
+        end
+        
+        function disableStatusPanel(self)
+            set(self.handleStruct.statusPanel,'Visible','off');
+        end
+        
+        function enableStatusPanel(self)
+            set(self.handleStruct.statusPanel,'Visible','on');
         end
     end
 end
