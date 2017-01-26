@@ -23,6 +23,9 @@ classdef sttTaskList < matlab.mixin.SetGet
         
         taskListPath    % If the list comes from a loaded file, the file name
                         % gets saved for overwriting as tasks are completed
+                        
+        listCopy        % Used to store original during editing - canceling will
+                        % revert to this copy
     end
     
     properties (Hidden, Transient)
@@ -151,6 +154,13 @@ classdef sttTaskList < matlab.mixin.SetGet
             
             % Fill in list
             self.fillInList();
+            
+            % Create temporary copy that can be reverted to if the user
+            % decides to cancel
+            objAsByteArray = getByteStreamFromArray(self);
+            self.listCopy = getArrayFromByteStream(objAsByteArray);
+            set(self.handleStruct.cancelButton, ...
+                'Callback',@(h,e)self.revertListAndExit);
         end
         
         %............................................................
@@ -551,6 +561,18 @@ classdef sttTaskList < matlab.mixin.SetGet
         end
 
         %............................................................
+        % Revert list back to old copy and exit.
+        function revertListAndExit(self)
+            % Revert list
+            self.taskList = self.listCopy.taskList;
+            self.taskDataList = self.listCopy.taskDataList;
+            self.listCopy = [];
+            
+            % Exit
+            exitGuiWithoutSaving(self)
+        end
+
+        %............................................................
         % Save and exit GUI.
         function saveAndClear(self, clearDisplay)
             % Reset task pointer
@@ -569,7 +591,9 @@ classdef sttTaskList < matlab.mixin.SetGet
             end
             
             % Return control to parent testing interface
-            self.parentTestingInterface.endTaskList();
+            if ~isempty(self.parentTestingInterface)
+                self.parentTestingInterface.endTaskList();
+            end
         end
         
         %............................................................
@@ -596,6 +620,10 @@ classdef sttTaskList < matlab.mixin.SetGet
                 objAsByteArray = getByteStreamFromArray(self);
                 taskListObj = getArrayFromByteStream(objAsByteArray);
                 taskListObj.handleStruct = [];
+                if ~isempty(taskListObj.parentTestingInterface)
+                    close(taskListObj.parentTestingInterface.handleStruct.figure);
+                    taskListObj.parentTestingInterface = [];
+                end
                 
                 save(fullfile(pathname, filename), 'taskListObj')
                 self.saveDir = pathname;
@@ -630,7 +658,11 @@ classdef sttTaskList < matlab.mixin.SetGet
                 objAsByteArray = getByteStreamFromArray(self);
                 taskListObj = getArrayFromByteStream(objAsByteArray);
                 taskListObj.handleStruct = [];
-
+                if ~isempty(taskListObj.parentTestingInterface)
+                    close(taskListObj.parentTestingInterface.handleStruct.figure);
+                    taskListObj.parentTestingInterface = [];
+                end
+                
                 save(fullfile(filePath, fileName), 'taskListObj')
                 self.saveDir = filePath;
             end
@@ -665,6 +697,7 @@ classdef sttTaskList < matlab.mixin.SetGet
         %............................................................
         % Exit task list GUI without saving.
         function exitGuiWithoutSaving(self)
+            % Clear task panel
             if ~isempty(self.handleStruct)
                 taskChildren = get(self.handleStruct.taskPanel, 'Children');
                 while ~isempty(taskChildren)
