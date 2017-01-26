@@ -373,6 +373,7 @@ classdef sttTaskList < matlab.mixin.SetGet
                 
                 % Edit list
                 self.taskList(selectedItems) = [];
+                self.taskDataList(selectedItems) = [];
             catch ME
                 errH = errordlg(...
                     {ME.identifier; ME.message}, ...
@@ -408,17 +409,19 @@ classdef sttTaskList < matlab.mixin.SetGet
                 for a = 1:length(answer)
                     newOrder(a) = str2num(answer{a});
                 end
-                if length(unique(newOrder)) < length(newOrder)
+                [sortOrder, sortOrderI] = sort(newOrder);
+                
+                if length(unique(sortOrderI)) < length(sortOrderI)
                     ME = MException(...
                         'sttTaskList:ReorderTasksInList', ...
                         'Each position in the list must be unique.');
                     throw(ME);
-                elseif any(newOrder > length(newOrder))
+                elseif any(sortOrderI > length(sortOrderI))
                     ME = MException(...
                         'sttTaskList:ReorderTasksInList', ...
                         'At least one specified position is outside the list range.');
                     throw(ME);                    
-                elseif any(newOrder < 1)
+                elseif any(sortOrderI < 1)
                     ME = MException(...
                         'sttTaskList:ReorderTasksInList', ...
                         'The index of the first position in the list must equal one.');
@@ -426,8 +429,8 @@ classdef sttTaskList < matlab.mixin.SetGet
                 end
                 
                 % Reorder
-                self.taskList = self.taskList(newOrder);
-                self.taskDataList = self.taskDataList(newOrder);
+                self.taskList = self.taskList(sortOrderI);
+                self.taskDataList = self.taskDataList(sortOrderI);
                 self.fillInList();
             catch ME
                 errH = errordlg(...
