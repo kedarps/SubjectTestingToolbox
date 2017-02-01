@@ -187,7 +187,10 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
             
             % Unlock UI after token presentation
             self.unlockUi();
-
+            
+            % update title status
+            self.updateTitle(nextStimulusI-1);
+            
             % Enable response and reset status display
             self.enableBoxWithoutSelection();
             set(self.handleStruct.statusButton, ...
@@ -334,13 +337,26 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
                     self.log.responses = {};
                 end
             catch ME
-                % Create a base exception to indicate where this error 
+                % Create a base exception to indicate where this error
                 % occurred and append the cause to it.
                 baseME = MException(...
                     'sttTask:ResetTask', ...
                     'Error occurred while resetting task.');
                 newME = addCause(baseME, ME);
-                self.respondToError(newME);                
+                self.respondToError(newME);
+            end
+        end
+        
+        %............................................................
+        % Update title status, to show task progress
+        function updateTitle(self, id)
+            % first get task title
+            taskTitle = self.taskTitle;
+            % calculate % done
+            pcDone = round((100*id/length(self.stimulusList))*100)/100;
+            % update UI title
+            if ~isempty(self.handleStruct.taskTitle)
+                set(self.handleStruct.taskTitle,'String',[taskTitle,' - ',num2str(pcDone),' % Done']);
             end
         end
     end
