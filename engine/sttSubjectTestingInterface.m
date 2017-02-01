@@ -67,7 +67,8 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 'Tag','sttSubjectTestingInterface',...
                 'NumberTitle','off',...
                 'WindowStyle','Normal',...
-                'DockControls','off');
+                'DockControls','off',...
+                'DeleteFcn',@(h,e)self.killStatusTimer());
             
             % Create task panel
             self.handleStruct.taskPanel =  uipanel(...
@@ -623,5 +624,11 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
             start(self.statusTimer);
         end
         
+        %............................................................
+        % When figure closes make sure to kill timer object
+        function killStatusTimer(self)
+            stop(self.statusTimer);
+            delete(self.statusTimer);
+        end
     end
 end

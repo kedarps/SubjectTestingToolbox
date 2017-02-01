@@ -88,10 +88,12 @@ classdef sttTaskPregeneratedOpenSetSpeechForNormalHearing < sttTaskPregeneratedO
         %............................................................
         % Present token
         function presentToken(self, token)
-            soundsc(token.signal, token.Fs);
+            self.playerObj = audioplayer(token.signal, token.Fs);
+            playblocking(self.playerObj);
             
-            % Pause for token duration
-            pause(length(token.signal)/token.Fs)
+            while self.playerObj.isplaying
+                drawnow;
+            end
         end
         
         %............................................................

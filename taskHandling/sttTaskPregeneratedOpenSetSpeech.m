@@ -10,6 +10,9 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
         
         % Hold typing if subject starts to type early
         heldTyping = []
+        
+        % Audioplayer object for token presentation
+        playerObj
     end
     
     methods
@@ -140,6 +143,9 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
         % the logging of the response.
         %   Callback for responseBox in initGUI.
         function enterResponseOnlyOnKeyboardReturn(self)
+            if self.playerObj.isplaying
+                return
+            end
             figH = get(self.taskPanel, 'Parent');
             lastKey = get(figH, 'CurrentCharacter');
             if regexp(lastKey, '\r|\n|\r\n')
