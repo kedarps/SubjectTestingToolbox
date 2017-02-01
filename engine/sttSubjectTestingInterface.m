@@ -587,7 +587,9 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 for i = 1:nTasks
                     taskTableData{i,1} = self.taskList.taskList{i}.taskTitle;
                     taskTableData{i,2} = self.taskList.taskList{i}.status;
-                    taskTableData{i,3} = char(self.taskList.taskList{i}.completionDateAndTime(end));
+                    if ~isempty(self.taskList.taskList{i}.completionDateAndTime)
+                        taskTableData{i,3} = char(self.taskList.taskList{i}.completionDateAndTime(end));
+                    end
                 end
                 set(self.handleStruct.status.tasktable,'Data',taskTableData);
                 set(self.handleStruct.status.start,'Enable','on');
