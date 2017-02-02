@@ -84,7 +84,8 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 'Position',[0.191 0.586 0.6 0.372],...
                 'BackgroundColor', [0.94 0.94 0.94], ...
                 'visible','on',...
-                'BorderType','etchedin');
+                'BorderType','etchedin',...
+                'Title','STATUS');
             
             % create status buttons, save just the important ones in
             % handleStruct, need not save all of them
@@ -98,7 +99,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
             self.handleStruct.status.tasktable = uitable(self.handleStruct.statusPanel,'Units','normalized',...
                 'Position',[0.017 0.465 0.97 0.362],...
                 'ColumnName',{'Task','Status','Completion Date & Time'},...
-                'RowName',{'1','2','3','4'},'ColumnWidth',{300,300,300},...
+                'RowName',{'1','2','3','4','5','6','7','8','9','10'},'ColumnWidth',{300,300,300},...
                 'FontUnits','normalized',...
                 'FontSize',0.1);
             
@@ -176,7 +177,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 
                 % Create new subject
                 self.subject = sttNormalHearingSubject(self.preferences.saveDirectory);
-%                 self.updateStatusPanel();
                 % Check to see if a subject was created:
                 if isempty(self.subject.returnSubjectID())
                     % If not, delete initialization.
@@ -243,7 +243,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                     end
                     
                     self.subject = subject;
-%                     self.updateStatusPanel()
                     % If a subject has been loaded, and there is already a
                     % task list, and the subject does not match the task
                     % list (most likely), clear the task list
@@ -286,7 +285,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                         'Task List Cleared', 'modal');
                     uiwait(warnH)
                 end
-%                 self.updateStatusPanel();
             catch ME
                 self.subject.subjectError(ME);
                 if ~isempty(self.subject)
@@ -311,7 +309,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
         function clearSubject(self)
             delete(self.subject);
             self.subject = [];
-%             self.updateStatusPanel();
         end
 
         %............................................................
@@ -353,7 +350,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                        self.handleStruct.taskPanel, ...
                        self.preferences.saveDirectory);
                end
-%                self.updateStatusPanel();
            catch ME
                self.clearTaskList();
                warnH = warndlg(...
@@ -380,7 +376,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                     % If loaded, set subject from task list
                     self.taskList = taskList;
                     self.subject = self.taskList.returnSubject();
-%                     self.updateStatusPanel();
                 end
             catch ME
                 warnH = warndlg(...
@@ -417,7 +412,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                    'modal');
                uiwait(warnH);
             end
-%             self.updateStatusPanel();
         end
         
         %............................................................
@@ -432,7 +426,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
                 else
                     self.taskList.resetTaskList(self.handleStruct.taskPanel);
                 end
-%                 self.updateStatusPanel();
             catch ME
                warnH = warndlg(...
                    {ME.identifier; ME.message; 'Error occurred during reset.'}, ...
@@ -447,7 +440,6 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
         function clearTaskList(self)
             delete(self.taskList);
             self.taskList = [];
-%             self.updateStatusPanel();
         end
         
         %............................................................
@@ -619,6 +611,7 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
         %............................................................
         % Timer for timely updating status 
         function initStatusTimer(self)
+            % update after every 10s
             period = 10;
             self.statusTimer = timer('TimerFcn', {@(h,e) self.updateStatusPanel()}, 'Period', period, 'executionmode', 'fixedrate');
             start(self.statusTimer);
