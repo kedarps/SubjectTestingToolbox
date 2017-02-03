@@ -611,9 +611,9 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
         %............................................................
         % Timer for timely updating status 
         function initStatusTimer(self)
-            % update after every 10s
-            period = 10;
-            self.statusTimer = timer('TimerFcn', {@(h,e) self.updateStatusPanel()}, 'Period', period, 'executionmode', 'fixedrate');
+            % update after every {interval}s
+            interval = 3;
+            self.statusTimer = timer('TimerFcn', {@(h,e) self.updateStatusPanel()}, 'Period', interval, 'executionmode', 'fixedrate');
             start(self.statusTimer);
         end
         
