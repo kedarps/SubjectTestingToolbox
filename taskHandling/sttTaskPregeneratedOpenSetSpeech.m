@@ -10,6 +10,9 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
         
         % Hold typing if subject starts to type early
         heldTyping = []
+        
+        % Audioplayer object for token presentation
+        playerObj
     end
     
     methods
@@ -81,11 +84,11 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
             % Display task name
             self.handleStruct.taskTitle = uicontrol(self.taskPanel,...
                 'Style', 'text', ...
-                'String', self.taskTitle,...
+                'String', sprintf('%s [ Task %d of %d ]',self.taskTitle,self.parentTaskList.taskPointer,length(self.parentTaskList.taskList)),...
                 'BackgroundColor', get(self.taskPanel, 'BackgroundColor'), ...
                 'ForegroundColor', [0.3 0.5 0.05], ...
                 'Units','normalized',...
-                'Position',[0.01 0.85 0.7 0.1],...
+                'Position',[0.01 0.85 0.9 0.1],...
                 'FontUnits','normalized',...
                 'FontSize',0.5, ...
                 'HorizontalAlignment', 'left');
@@ -140,10 +143,14 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
         % the logging of the response.
         %   Callback for responseBox in initGUI.
         function enterResponseOnlyOnKeyboardReturn(self)
+            if self.playerObj.isplaying
+                return
+            end
             figH = get(self.taskPanel, 'Parent');
             lastKey = get(figH, 'CurrentCharacter');
             if regexp(lastKey, '\r|\n|\r\n')
                 self.logStimulusAndResponse();
+                self.updateTitle();
             end
         end
 
@@ -187,7 +194,7 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
             
             % Unlock UI after token presentation
             self.unlockUi();
-
+            
             % Enable response and reset status display
             self.enableBoxWithoutSelection();
             set(self.handleStruct.statusButton, ...
@@ -334,13 +341,28 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
                     self.log.responses = {};
                 end
             catch ME
-                % Create a base exception to indicate where this error 
+                % Create a base exception to indicate where this error
                 % occurred and append the cause to it.
                 baseME = MException(...
                     'sttTask:ResetTask', ...
                     'Error occurred while resetting task.');
                 newME = addCause(baseME, ME);
-                self.respondToError(newME);                
+                self.respondToError(newME);
+            end
+        end
+        
+        %............................................................
+        % Update title status, to show task progress
+        function updateTitle(self)
+            if isvalid(self.handleStruct.taskTitle)
+                % first get task title
+                taskTitle = sprintf('%s [ Task %d of %d ]',self.taskTitle,self.parentTaskList.taskPointer,length(self.parentTaskList.taskList));
+                % calculate % done
+                pcDone = round((100*length(self.log.presentedStimuli)/length(self.stimulusList))*10)/10;
+                % update UI title
+                if ~isempty(self.handleStruct.taskTitle)
+                    set(self.handleStruct.taskTitle,'String',sprintf('%s [ %3.1f %% Done ]',taskTitle,pcDone));
+                end
             end
         end
     end
