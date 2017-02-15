@@ -515,15 +515,15 @@ classdef sttSubjectTestingInterface < prtUiManagerPanel
         % Disable main UI during task operation
         %   Used by beginTaskList and beginTaskListInDebugMode
         function disableMainUi(self)
-%             % Turn off menus
-%             set(self.handleStruct.subjectMenu, 'Enable', 'off');
-%             set(self.handleStruct.taskMenu, 'Enable', 'off');
-%             set(self.handleStruct.actionMenu, 'Enable', 'off');
-%             set(self.handleStruct.preferencesMenu, 'Enable', 'off');
-%             
-%             % Do not let 'x' box close the figure
-%             set(self.handleStruct.figure,...
-%                 'CloseRequestFcn', @(h,e)self.doNotAllowClose());
+            % Turn off menus
+            set(self.handleStruct.subjectMenu, 'Enable', 'off');
+            set(self.handleStruct.taskMenu, 'Enable', 'off');
+            set(self.handleStruct.actionMenu, 'Enable', 'off');
+            set(self.handleStruct.preferencesMenu, 'Enable', 'off');
+            
+            % Do not let 'x' box close the figure
+            set(self.handleStruct.figure,...
+                'CloseRequestFcn', @(h,e)self.doNotAllowClose());
             self.disableStatusPanel();
         end
 
