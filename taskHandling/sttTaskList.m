@@ -628,6 +628,7 @@ classdef sttTaskList < matlab.mixin.SetGet
                 taskListObj = getArrayFromByteStream(objAsByteArray);
                 taskListObj.handleStruct = [];
                 if ~isempty(taskListObj.parentTestingInterface)
+                    set(taskListObj.parentTestingInterface.handleStruct.figure,'CloseRequestFcn', 'closereq');
                     close(taskListObj.parentTestingInterface.handleStruct.figure);
                     taskListObj.parentTestingInterface = [];
                 end
@@ -666,6 +667,7 @@ classdef sttTaskList < matlab.mixin.SetGet
                 taskListObj = getArrayFromByteStream(objAsByteArray);
                 taskListObj.handleStruct = [];
                 if ~isempty(taskListObj.parentTestingInterface)
+                    set(taskListObj.parentTestingInterface.handleStruct.figure,'CloseRequestFcn', 'closereq');
                     close(taskListObj.parentTestingInterface.handleStruct.figure);
                     taskListObj.parentTestingInterface = [];
                 end
