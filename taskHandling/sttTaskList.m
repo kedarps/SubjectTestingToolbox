@@ -66,7 +66,9 @@ classdef sttTaskList < matlab.mixin.SetGet
             % Attempt to load is user does not cancel
             if (~isequal(listFile, 0) && ~isequal(listPath, 0))
                 try
+                    loaddlg = msgbox('This could take a minute...','Loading file','help');
                     load(fullfile(listPath, listFile))
+                    delete(loaddlg);
                     
                     % Verify file contains necessary information
                     if ~exist('taskListObj', 'var')
