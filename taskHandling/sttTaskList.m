@@ -633,7 +633,9 @@ classdef sttTaskList < matlab.mixin.SetGet
                     taskListObj.parentTestingInterface = [];
                 end
                 
+                savedlg = msgbox('This could take a minute...','Saving file','help');
                 save(fullfile(pathname, filename), 'taskListObj')
+                delete(savedlg);
                 self.saveDir = pathname;
             end
         end
@@ -672,7 +674,10 @@ classdef sttTaskList < matlab.mixin.SetGet
                     taskListObj.parentTestingInterface = [];
                 end
                 
+                savedlg = msgbox('This could take a minute...','Saving file','help');
                 save(fullfile(filePath, fileName), 'taskListObj')
+                delete(savedlg);
+                
                 self.saveDir = filePath;
             end
         end
@@ -695,8 +700,10 @@ classdef sttTaskList < matlab.mixin.SetGet
                 objAsByteArray = getByteStreamFromArray(self);
                 taskListObj = getArrayFromByteStream(objAsByteArray);
                 taskListObj.handleStruct = [];
-
+                
+                savedlg = msgbox('This could take a minute...','Saving file','help');
                 save(fullfile(savePath, errorFile), 'taskListObj');
+                delete(savedlg);
             end
 
             % Rethrow error to testing interface
