@@ -4,7 +4,15 @@ classdef (Abstract) sttTaskPregeneratedOpenSetSpeech < sttTask
         taskPanel
         handleStruct
         
-        % Stimuli for task
+        % TASK DATA for this task should contain three items:
+        %   taskTitle - a string identifying the task
+        %   stimulusList - a cell array of strings that identify each of
+        %               the tokens to be presented, in the order of
+        %               presentation
+        %   stimulusTokens - a structure for which each element corresponds
+        %               to a token in stimulusList.  The fields are
+        %               'signal' and 'Fs' for the audio signal and the
+        %               sampling frequency.
         stimulusList
         stimulusTokens
         
