@@ -62,6 +62,18 @@ classdef sttTaskPregeneratedOpenSetSpeechForNormalHearing < sttTaskPregeneratedO
                     'Task data contained no stimulus tokens.');
                 throw(ME);
             end
+            
+            % also check if stimulusTokens contains correct fields
+            checkFields = {'signal'; 'Fs'};
+            stimTokenFields = fieldnames(self.stimulusTokens);
+            
+            if length(checkFields) ~= length(stimTokenFields) || ...
+                    ~all(strcmp(checkFields, stimTokenFields))
+                ME = MException(...
+                    'sttTask:CheckData', ...
+                    'stimulusTokens struct is not right. Make sure it contains ''signal'' and ''Fs'' fields (case-sensitive)');
+                throw(ME);
+            end
         end
         
         %............................................................
